@@ -11,11 +11,12 @@ final class LoginViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
     
-    private var authService = FirebaseAuthServiceImpl()
+    private var authService: AuthService
     
     private var cancellables = Set<AnyCancellable>()
     
-    init () {
+    init (authService: AuthService) {
+        self.authService = authService
         
         $email
             .combineLatest($password)

@@ -12,9 +12,10 @@ final class RegistrationViewModel: ObservableObject {
     @Published var isRegistrationSuccessful: Bool = false
     
     private var cancellables: Set<AnyCancellable> = []
-    private var authService = FirebaseAuthServiceImpl()
+    private var authService: AuthService
     
-    init () {
+    init (authService: AuthService) {
+        self.authService = authService
         
         $email
             .combineLatest($password, $confirmPassword)

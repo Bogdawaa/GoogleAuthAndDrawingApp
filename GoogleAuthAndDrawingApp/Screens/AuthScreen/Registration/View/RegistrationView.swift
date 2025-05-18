@@ -3,7 +3,7 @@ import SwiftUI
 struct RegistrationView: View {
     
     @ObservedObject var router = Router.shared
-    @StateObject private var viewModel: RegistrationViewModel = RegistrationViewModel()
+    @StateObject private var viewModel: RegistrationViewModel = RegistrationViewModel(authService: FirebaseAuthServiceImpl())
     
     var body: some View {
         Spacer()

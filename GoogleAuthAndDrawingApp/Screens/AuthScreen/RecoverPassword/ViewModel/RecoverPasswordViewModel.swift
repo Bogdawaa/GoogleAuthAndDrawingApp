@@ -11,9 +11,10 @@ final class RecoverPasswordViewModel: ObservableObject {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    private var authService = FirebaseAuthServiceImpl()
+    private var authService: AuthService
     
-    init () {
+    init (authService: AuthService) {
+        self.authService = authService
         
         $email
             .debounce(for: 0.3, scheduler: DispatchQueue.main)

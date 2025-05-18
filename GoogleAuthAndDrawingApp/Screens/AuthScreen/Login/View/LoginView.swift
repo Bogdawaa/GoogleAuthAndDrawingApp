@@ -4,7 +4,7 @@ struct LoginView: View {
     
     // MARK: - Properties
     @ObservedObject var router = Router.shared
-    @StateObject private var viewModel: LoginViewModel = LoginViewModel()
+    @StateObject private var viewModel: LoginViewModel = LoginViewModel(authService: FirebaseAuthServiceImpl())
     
     // MARK: - Body
     var body: some View {

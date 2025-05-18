@@ -3,8 +3,8 @@ import SwiftUI
 struct AuthView: View {
     
     @ObservedObject var router = Router.shared
-    @StateObject var passwordRecoveryViewModel = RecoverPasswordViewModel()
-    @StateObject var emailConfirmationViewModel = RegistrationViewModel()
+    @StateObject var passwordRecoveryViewModel = RecoverPasswordViewModel(authService: FirebaseAuthServiceImpl())
+    @StateObject var emailConfirmationViewModel = RegistrationViewModel(authService: FirebaseAuthServiceImpl())
 
     
     
