@@ -1,0 +1,53 @@
+import Combine
+import Foundation
+
+@MainActor
+final class RecoverPasswordViewModel: ObservableObject {
+    
+    @Published var email: String = ""
+    @Published var isLoading: Bool = false
+    @Published var isSendButtonEnabled: Bool = false
+    @Published var errorMessage: String?
+    
+    private var cancellables: Set<AnyCancellable> = []
+    
+    private var authService = FirebaseAuthServiceImpl()
+    
+    init () {
+        
+        $email
+            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+            .map { email in
+                return Validation.email.isValid(email)
+            }
+            .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.isSendButtonEnabled, on: self)
+            .store(in: &cancellables)
+    }
+    
+}
+
+// MARK: - RecoverPasswordViewModel Extension
+extension RecoverPasswordViewModel {
+    func resetPassword() {
+        isLoading = true
+        
+        authService
+            .sendPasswordReset(withEmail: email)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                switch completion {
+                case .finished:
+                    self?.isLoading = false
+                case .failure(let error):
+                    self?.isLoading = false
+                    self?.errorMessage = error.localizedDescription
+                    print("*** Error in \(#function): \(error)")
+                }
+            } receiveValue: { [weak self] result in
+                self?.errorMessage = nil
+            }
+            .store(in: &cancellables)
+    }
+}

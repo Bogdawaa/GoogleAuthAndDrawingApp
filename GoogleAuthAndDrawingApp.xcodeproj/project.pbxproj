@@ -6,13 +6,34 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8C81B9ED1A8433A7861663F8 /* Pods_GoogleAuthAndDrawingApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1C5FF3656480EDCE8AB0F3 /* Pods_GoogleAuthAndDrawingApp.framework */; };
+		F00857622DD64E1800B4C18A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F00857612DD64E1800B4C18A /* FirebaseAuth */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		2B1C5FF3656480EDCE8AB0F3 /* Pods_GoogleAuthAndDrawingApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GoogleAuthAndDrawingApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		62099D05B0B613C8A9C1674B /* Pods-GoogleAuthAndDrawingApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoogleAuthAndDrawingApp.release.xcconfig"; path = "Target Support Files/Pods-GoogleAuthAndDrawingApp/Pods-GoogleAuthAndDrawingApp.release.xcconfig"; sourceTree = "<group>"; };
+		666DA6CFAAC55C0ED0655B9E /* Pods-GoogleAuthAndDrawingApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoogleAuthAndDrawingApp.debug.xcconfig"; path = "Target Support Files/Pods-GoogleAuthAndDrawingApp/Pods-GoogleAuthAndDrawingApp.debug.xcconfig"; sourceTree = "<group>"; };
 		F008573C2DD63F9B00B4C18A /* GoogleAuthAndDrawingApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GoogleAuthAndDrawingApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F00857692DD65D0D00B4C18A /* Exceptions for "GoogleAuthAndDrawingApp" folder in "GoogleAuthAndDrawingApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F008573B2DD63F9B00B4C18A /* GoogleAuthAndDrawingApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F008573E2DD63F9B00B4C18A /* GoogleAuthAndDrawingApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F00857692DD65D0D00B4C18A /* Exceptions for "GoogleAuthAndDrawingApp" folder in "GoogleAuthAndDrawingApp" target */,
+			);
 			path = GoogleAuthAndDrawingApp;
 			sourceTree = "<group>";
 		};
@@ -23,17 +44,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C81B9ED1A8433A7861663F8 /* Pods_GoogleAuthAndDrawingApp.framework in Frameworks */,
+				F00857622DD64E1800B4C18A /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1F5C8FA604586A4C700037C3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2B1C5FF3656480EDCE8AB0F3 /* Pods_GoogleAuthAndDrawingApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		372517A8B392A430BBEE9C86 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				666DA6CFAAC55C0ED0655B9E /* Pods-GoogleAuthAndDrawingApp.debug.xcconfig */,
+				62099D05B0B613C8A9C1674B /* Pods-GoogleAuthAndDrawingApp.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		F00857332DD63F9B00B4C18A = {
 			isa = PBXGroup;
 			children = (
 				F008573E2DD63F9B00B4C18A /* GoogleAuthAndDrawingApp */,
 				F008573D2DD63F9B00B4C18A /* Products */,
+				372517A8B392A430BBEE9C86 /* Pods */,
+				1F5C8FA604586A4C700037C3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,9 +94,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F00857472DD63F9C00B4C18A /* Build configuration list for PBXNativeTarget "GoogleAuthAndDrawingApp" */;
 			buildPhases = (
+				3A4792888B266009709F4168 /* [CP] Check Pods Manifest.lock */,
 				F00857382DD63F9B00B4C18A /* Sources */,
 				F00857392DD63F9B00B4C18A /* Frameworks */,
 				F008573A2DD63F9B00B4C18A /* Resources */,
+				AE6B9DE6182341066B8AAE97 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -64,8 +108,6 @@
 				F008573E2DD63F9B00B4C18A /* GoogleAuthAndDrawingApp */,
 			);
 			name = GoogleAuthAndDrawingApp;
-			packageProductDependencies = (
-			);
 			productName = GoogleAuthAndDrawingApp;
 			productReference = F008573C2DD63F9B00B4C18A /* GoogleAuthAndDrawingApp.app */;
 			productType = "com.apple.product-type.application";
@@ -94,6 +136,9 @@
 			);
 			mainGroup = F00857332DD63F9B00B4C18A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F00857602DD64E1800B4C18A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F008573D2DD63F9B00B4C18A /* Products */;
 			projectDirPath = "";
@@ -113,6 +158,52 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3A4792888B266009709F4168 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-GoogleAuthAndDrawingApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AE6B9DE6182341066B8AAE97 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GoogleAuthAndDrawingApp/Pods-GoogleAuthAndDrawingApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GoogleAuthAndDrawingApp/Pods-GoogleAuthAndDrawingApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GoogleAuthAndDrawingApp/Pods-GoogleAuthAndDrawingApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F00857382DD63F9B00B4C18A /* Sources */ = {
@@ -162,7 +253,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -225,7 +316,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -246,6 +337,7 @@
 		};
 		F00857482DD63F9C00B4C18A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 666DA6CFAAC55C0ED0655B9E /* Pods-GoogleAuthAndDrawingApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -253,6 +345,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GoogleAuthAndDrawingApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -273,6 +366,7 @@
 		};
 		F00857492DD63F9C00B4C18A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 62099D05B0B613C8A9C1674B /* Pods-GoogleAuthAndDrawingApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -280,6 +374,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GoogleAuthAndDrawingApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -320,6 +415,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F00857602DD64E1800B4C18A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.12.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F00857612DD64E1800B4C18A /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F00857602DD64E1800B4C18A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F00857342DD63F9B00B4C18A /* Project object */;
 }
