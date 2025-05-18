@@ -22,14 +22,10 @@ struct RecoverPasswordView: View {
                     .textInputAutocapitalization(.never)
                 
                 Button {
-                    Task {
-                        try await viewModel.resetPassword()
-                        // TODO: is success!!!!
-                        if viewModel.errorMessage == nil {
-                            router.showRecoveryPasswordConfirmationModal()
-                        }
-                        
-                        
+                    viewModel.resetPassword()
+                    // TODO: is success!!!!
+                    if viewModel.errorMessage == nil {
+                        router.showRecoveryPasswordConfirmationModal()
                     }
                 } label: {
                     Text("Отправить")

@@ -17,9 +17,7 @@ struct RecoveryPasswordConfirmation: View {
                 
             HStack {
                 Button {
-                    Task {
-                        await viewModel.resetPassword()
-                    }
+                    viewModel.resetPassword()
                 } label: {
                     Text("Отправить повторно")
                         .frame(maxWidth: .infinity, maxHeight: 40)

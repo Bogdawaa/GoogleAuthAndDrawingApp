@@ -52,9 +52,7 @@ struct LoginView: View {
         .disabled(!viewModel.isLoginButtonEnabled)
         
         Button {
-            Task {
-                await viewModel.signInWithGoogle()
-            }
+            viewModel.signInWithGoogle()
         } label: {
             Text("Google")
                 .foregroundStyle(.black)
