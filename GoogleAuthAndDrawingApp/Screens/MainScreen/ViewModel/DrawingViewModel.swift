@@ -16,7 +16,11 @@ class DrawingViewModel: ObservableObject {
     @Published var isShownImagePicker: Bool = false
     @Published var isDrawingEnabled = false
     @Published var drawing = PKDrawing()
+    @Published var currentFilter: FilterService.FilterType = .none
+    @Published var filteredImage: UIImage?
     @Published var tool: PKTool = PKInkingTool(.pen, color: .black, width: 5)
+    @Published var selectedTool: ToolType = .pen
+
     
     // MARK: - Computed Properties
     var safeAreaInsets: EdgeInsets {
@@ -170,23 +174,23 @@ extension DrawingViewModel {
 extension DrawingViewModel {
     
     func saveImageToGallery(completion: @escaping (Bool, Error?) -> Void) {
-        guard let image = image else {
-            completion(false, NSError(domain: "NoImage", code: -1, userInfo: nil))
+        
+        let imageToRender = currentFilter == .none ? image : filteredImage
+        
+        guard let resultlImage = renderCombinedImage(baseImage: imageToRender) else {
+            completion(false, NSError(domain: "RenderingError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to render image"]))
             return
         }
-        
-        let size = containerSize(for: image)
-        let combinedImage = renderCombinedImage(size: size)
         
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             DispatchQueue.main.async {
                 guard status == .authorized else {
-                    completion(false, NSError(domain: "AuthDenied", code: -2, userInfo: nil))
+                    completion(false, NSError(domain: "AuthDenied", code: -2, userInfo: [NSLocalizedDescriptionKey: "Photo library access denied"]))
                     return
                 }
                 
                 PHPhotoLibrary.shared().performChanges({
-                    PHAssetChangeRequest.creationRequestForAsset(from: combinedImage)
+                    PHAssetChangeRequest.creationRequestForAsset(from: resultlImage)
                 }) { success, error in
                     DispatchQueue.main.async {
                         completion(success, error)
@@ -196,7 +200,10 @@ extension DrawingViewModel {
         }
     }
     
-    private func renderCombinedImage(size: CGSize) -> UIImage {
+    private func renderCombinedImage(baseImage: UIImage?) -> UIImage? {
+        guard let baseImage = baseImage else { return nil }
+        let size = containerSize(for: baseImage)
+        
         let renderer = UIGraphicsImageRenderer(size: size)
         
         return renderer.image { ctx in
@@ -205,21 +212,24 @@ extension DrawingViewModel {
             
             let radians = rotation.radians
             ctx.cgContext.saveGState()
-            ctx.cgContext.translateBy(x: size.width / 2, y: size.height / 2)
+            ctx.cgContext.translateBy(x: size.width/2, y: size.height/2)
             ctx.cgContext.rotate(by: CGFloat(radians))
             ctx.cgContext.scaleBy(x: scale, y: scale)
-            image?.draw(in: CGRect(
-                x: -size.width / 2 + offset.width,
-                y: -size.height / 2 + offset.height,
+            
+            baseImage.draw(in: CGRect(
+                x: -size.width/2 + offset.width,
+                y: -size.height/2 + offset.height,
                 width: size.width,
                 height: size.height
             ))
+            
             ctx.cgContext.restoreGState()
             
             let drawingImage = drawing.image(
                 from: CGRect(origin: .zero, size: size),
                 scale: UIScreen.main.scale
             )
+            
             drawingImage.draw(in: CGRect(origin: .zero, size: size))
         }
     }
@@ -229,8 +239,10 @@ extension DrawingViewModel {
 // MARK: - Drawing
 extension DrawingViewModel {
     
-    enum ToolType {
-        case pen, marker, eraser
+    enum ToolType: String, CaseIterable {
+        case pen = "Pen"
+        case marker = "Marker"
+        case eraser = "Eraser"
     }
     
     func reset() {
@@ -246,14 +258,25 @@ extension DrawingViewModel {
         drawing = PKDrawing()
     }
     
-    func setTool(_ toolType: ToolType) {
-        switch toolType {
+    func setTool(_ tool: ToolType) {
+        selectedTool = tool
+        switch tool {
         case .pen:
-            tool = PKInkingTool(.pen, color: .black, width: 5)
+            self.tool = PKInkingTool(.pen, color: .black, width: 5)
         case .marker:
-            tool = PKInkingTool(.marker, color: .red, width: 10)
+            self.tool = PKInkingTool(.marker, color: .red, width: 10)
         case .eraser:
-            tool = PKEraserTool(.bitmap, width: 5)
+            self.tool = PKEraserTool(.bitmap, width: 15)
         }
+    }
+}
+
+// MARK: - Filter
+extension DrawingViewModel {
+    func applyFilter(_ filterType: FilterService.FilterType) {
+        guard let originalImage = image else { return }
+        
+        currentFilter = filterType
+        filteredImage = FilterService.shared.applyFilter(filterType, to: originalImage)
     }
 }

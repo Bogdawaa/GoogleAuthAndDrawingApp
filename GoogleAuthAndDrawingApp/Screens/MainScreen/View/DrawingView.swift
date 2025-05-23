@@ -35,7 +35,8 @@ struct DrawingView: View {
                         .onTapGesture {}
                     
                     // Content
-                    if let image = viewModel.image {
+                    if let image = viewModel.currentFilter == .none
+                        ? viewModel.image : viewModel.filteredImage {
                         
                         GeometryReader { geometry in
                             let containerSize = viewModel.containerSize(for: image)
@@ -211,26 +212,11 @@ extension DrawingView {
     // Нижняя панель инструментов
     private var bottomToolView: some View {
         HStack {
-            Group {
-                Button(action: {
-                    viewModel.setTool(.pen)
-                }) {
-                    Text("Pen")
-                }
-                
-                Button(action: {
-                    viewModel.setTool(.marker)
-                }) {
-                    Text("Marker")
-                }
-                
-                Button(action: {
-                    viewModel.setTool(.eraser)
-                }) {
-                    Text("Eraser")
-                }
-            }
-            .buttonStyle(.bordered)
+            Spacer()
+            toolMenu
+            Spacer()
+            filterMenu
+            Spacer()
         }
         .padding(.horizontal)
         .padding(.bottom, viewModel.safeAreaInsets.bottom)
@@ -260,6 +246,57 @@ extension DrawingView {
             }
         }
         .padding()
+    }
+    
+    private var toolIconName: String {
+        switch viewModel.selectedTool {
+        case .pen: return "pencil"
+        case .marker: return "pencil.tip"
+        case .eraser: return "eraser.fill"
+        }
+    }
+    
+    private var toolMenu: some View {
+        Menu {
+            ForEach(DrawingViewModel.ToolType.allCases, id: \.self) { tool in
+                Button {
+                    viewModel.setTool(tool)
+                } label: {
+                    HStack {
+                        Text(tool.rawValue)
+                        Spacer()
+                        if viewModel.selectedTool == tool {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: toolIconName)
+                .font(.title)
+        }
+    }
+    
+    private var filterMenu: some View {
+        Menu {
+            ForEach(FilterService.FilterType.allCases, id: \.self) { filter in
+                Button {
+                    viewModel.applyFilter(filter)
+                } label: {
+                    HStack {
+                        Text(filter.rawValue)
+                        Spacer()
+                        if viewModel.currentFilter == filter {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "camera.filters")
+                .font(.title)
+        }
     }
 }
 
