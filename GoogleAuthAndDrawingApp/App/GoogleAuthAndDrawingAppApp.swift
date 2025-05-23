@@ -17,8 +17,8 @@ struct GoogleAuthAndDrawingAppApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if sessionManager.isLoggedIn /* && email is verified */ {
-                MainView(router: router)
+            if sessionManager.isLoggedIn {
+                MainView()
             }
             else {
                 AuthView(router: router)

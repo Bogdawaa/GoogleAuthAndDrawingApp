@@ -5,6 +5,11 @@ final class MainViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+
+    @Published var showSettingsPanel = false
+    @Published var showSignoutConfirmation = false
+
+
     
     private var authService = FirebaseAuthServiceImpl()
     private var cancellables: Set<AnyCancellable> = []
