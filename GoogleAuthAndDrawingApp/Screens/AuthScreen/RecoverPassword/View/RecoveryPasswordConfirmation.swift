@@ -38,7 +38,13 @@ struct RecoveryPasswordConfirmation: View {
             }
         }
         .padding()
-
+        .alert("Ошибка", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK", role: .cancel) {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "Неизвестная ошибка")
+        }
     }
 }
 

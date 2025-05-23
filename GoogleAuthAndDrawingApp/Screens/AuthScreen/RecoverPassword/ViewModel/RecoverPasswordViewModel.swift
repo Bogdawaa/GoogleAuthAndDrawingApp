@@ -7,7 +7,9 @@ final class RecoverPasswordViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var isLoading: Bool = false
     @Published var isSendButtonEnabled: Bool = false
-    @Published var errorMessage: String?
+    @Published var errorMessage: String? = nil
+    @Published private(set) var isRecoverySuccessful: Bool = false
+
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -33,6 +35,7 @@ final class RecoverPasswordViewModel: ObservableObject {
 extension RecoverPasswordViewModel {
     func resetPassword() {
         isLoading = true
+        errorMessage = nil
         
         authService
             .sendPasswordReset(withEmail: email)
@@ -48,6 +51,7 @@ extension RecoverPasswordViewModel {
                 }
             } receiveValue: { [weak self] result in
                 self?.errorMessage = nil
+                self?.isRecoverySuccessful = true
             }
             .store(in: &cancellables)
     }

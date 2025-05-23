@@ -9,7 +9,7 @@ final class RegistrationViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
-    @Published var isRegistrationSuccessful: Bool = false
+    @Published private(set) var isRegistrationSuccessful: Bool = false
     
     private var cancellables: Set<AnyCancellable> = []
     private var authService: AuthService
@@ -32,6 +32,7 @@ final class RegistrationViewModel: ObservableObject {
 extension RegistrationViewModel {
     func register() {
         isLoading = true
+        errorMessage = nil
         
         authService
             .signUp(withEmail: email, password: password)
@@ -49,6 +50,7 @@ extension RegistrationViewModel {
                 }
             } receiveValue: { [weak self] result in
                 self?.errorMessage = nil
+                self?.isRegistrationSuccessful = true
                 self?.sendEmailVerification()
             }
             .store(in: &cancellables)
@@ -57,6 +59,7 @@ extension RegistrationViewModel {
     
     func sendEmailVerification() {
         isLoading = true
+        errorMessage = nil
         
         authService
             .sendEmailVerification()

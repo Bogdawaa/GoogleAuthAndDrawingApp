@@ -34,6 +34,8 @@ final class LoginViewModel: ObservableObject {
 extension LoginViewModel {
     func signIn() {
         isLoading = true
+        errorMessage = nil
+        
         authService
             .signIn(withEmail: email, password: password)
             .receive(on: DispatchQueue.main)
@@ -57,6 +59,7 @@ extension LoginViewModel {
     
     func signInWithGoogle() {
         isLoading = true
+        errorMessage = nil
         
         authService.signInWithGoogle()
             .receive(on: DispatchQueue.main)
