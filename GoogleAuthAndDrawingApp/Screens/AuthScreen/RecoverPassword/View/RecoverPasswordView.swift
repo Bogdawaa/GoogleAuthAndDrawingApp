@@ -30,7 +30,7 @@ struct RecoverPasswordView: View {
                             .foregroundStyle(.white)
                             .clipShape(.capsule)
                     }
-                    .disabled(viewModel.isSendButtonEnabled)
+                    .disabled(!viewModel.isSendButtonEnabled)
                     .padding()
                 }
             }
@@ -57,6 +57,9 @@ struct RecoverPasswordView: View {
             if viewModel.errorMessage == nil && viewModel.isRecoverySuccessful {
                 router.showRecoveryPasswordConfirmationModal()
             }
+        }
+        .onDisappear {
+            viewModel.email = ""
         }
     }
 }
