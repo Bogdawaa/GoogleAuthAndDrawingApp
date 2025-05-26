@@ -3,7 +3,7 @@ import PencilKit
 import PhotosUI
 
 struct DrawingView: View {
-
+    
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var alertTitle = ""
@@ -13,70 +13,68 @@ struct DrawingView: View {
     
     // MARK: - Body
     var body: some View {
-        NavigationStack {
+        VStack(spacing: 0) {
+            // MARK: - Top panel
             VStack(spacing: 0) {
-                // MARK: - Top panel
+                
+                Color.clear
+                    .frame(height: viewModel.safeAreaInsets.top)
+                
+                topToolView
+                    .padding()
+            }
+            .background(Color(.systemBackground))
+            .edgesIgnoringSafeArea(.top)
+            
+            Spacer()
+            
+            ZStack {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.deselectTextElements()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                DrawingContentView(viewModel: viewModel)
+                
+            }
+            
+            Spacer()
+            
+            // MARK: - Bottom panels
+            if let image = viewModel.image {
                 VStack(spacing: 0) {
-                    
-                    Color.clear
-                        .frame(height: viewModel.safeAreaInsets.top)
-                    
-                    topToolView
-                        .padding()
+                    rotationSlider
+                    rotationPanel
+                    bottomToolView
                 }
                 .background(Color(.systemBackground))
-                .edgesIgnoringSafeArea(.top)
-                
-                Spacer()
-               
-                ZStack {
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            viewModel.deselectTextElements()
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    
-                    DrawingContentView(viewModel: viewModel)
-                    
-                }
-                
-                Spacer()
-                
-                // MARK: - Bottom panels
-                if let image = viewModel.image {
-                    VStack(spacing: 0) {
-                        rotationSlider
-                        rotationPanel
-                        bottomToolView
-                    }
-                    .background(Color(.systemBackground))
-                }
             }
-            .edgesIgnoringSafeArea(.vertical)
-            .sheet(isPresented: $viewModel.showImageSourceSelection) {
-                ImageSourceSelectionView(
-                    showImageSourceSelection: $viewModel.showImageSourceSelection,
-                    showImagePicker: $viewModel.isShownImagePicker,
-                    sourceType: $viewModel.sourceType
-                )
-            }
-            .sheet(isPresented: $viewModel.isShownImagePicker) {
-                ImagePicker(image: $viewModel.image, sourceType: viewModel.sourceType)
-                    .onDisappear {
-                        guard viewModel.image?.pngData() == viewModel.originalImage?.pngData() else { return
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                viewModel.reset()
-                                viewModel.originalImage = viewModel.image
-                            }
+        }
+        .edgesIgnoringSafeArea(.vertical)
+        .sheet(isPresented: $viewModel.showImageSourceSelection) {
+            ImageSourceSelectionView(
+                showImageSourceSelection: $viewModel.showImageSourceSelection,
+                showImagePicker: $viewModel.isShownImagePicker,
+                sourceType: $viewModel.sourceType
+            )
+        }
+        .sheet(isPresented: $viewModel.isShownImagePicker) {
+            ImagePicker(image: $viewModel.image, sourceType: viewModel.sourceType)
+                .onDisappear {
+                    guard viewModel.image?.pngData() == viewModel.originalImage?.pngData() else { return
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            viewModel.reset()
+                            viewModel.originalImage = viewModel.image
                         }
                     }
-            }
-            .alert(alertTitle, isPresented: $showAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(alertMessage)
-            }
+                }
+        }
+        .alert(alertTitle, isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(alertMessage)
         }
     }
 }
