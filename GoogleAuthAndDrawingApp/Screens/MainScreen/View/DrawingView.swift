@@ -54,8 +54,15 @@ struct DrawingView: View {
                 }
             }
             .edgesIgnoringSafeArea(.vertical)
+            .sheet(isPresented: $viewModel.showImageSourceSelection) {
+                ImageSourceSelectionView(
+                    showImageSourceSelection: $viewModel.showImageSourceSelection,
+                    showImagePicker: $viewModel.isShownImagePicker,
+                    sourceType: $viewModel.sourceType
+                )
+            }
             .sheet(isPresented: $viewModel.isShownImagePicker) {
-                ImagePicker(image: $viewModel.image)
+                ImagePicker(image: $viewModel.image, sourceType: viewModel.sourceType)
                     .onDisappear {
                         guard viewModel.image?.pngData() == viewModel.originalImage?.pngData() else { return
                             withAnimation(.easeInOut(duration: 0.3)) {
@@ -92,7 +99,7 @@ extension DrawingView {
             Spacer()
             
             Button(action: {
-                viewModel.isDrawingEnabled.toggle()
+                viewModel.isDrawingEnabled = true
             }) {
                 Image(systemName: "pencil.tip.crop.circle" )
                     .font(.title)
@@ -102,7 +109,7 @@ extension DrawingView {
             Spacer()
             
             Button(action: {
-                viewModel.isDrawingEnabled.toggle()
+                viewModel.isDrawingEnabled = false
             }) {
                 Image(systemName: "hand.point.up.left")
                     .font(.title)
@@ -112,7 +119,7 @@ extension DrawingView {
             Spacer()
 
             Button(action: {
-                viewModel.isShownImagePicker.toggle()
+                viewModel.showImageSourceSelection.toggle()
             }) {
                 Image(systemName: "photo")
                     .font(.title)
