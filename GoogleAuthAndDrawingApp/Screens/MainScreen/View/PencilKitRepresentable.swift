@@ -4,18 +4,22 @@ import SwiftUI
 struct PencilKitRepresentable: UIViewRepresentable {
     @Binding var drawing: PKDrawing
     @Binding var isDrawingEnabled: Bool
-    @Binding var tool: PKTool
-    
+    @Binding var toolPicker: PKToolPicker
+
     @State private var lastValidDrawing: PKDrawing?
 
     func makeUIView(context: Context) -> PKCanvasView {
         let canvasView = PKCanvasView()
-        canvasView.tool = tool
         canvasView.drawingPolicy = .anyInput
+        canvasView.tool = toolPicker.selectedTool
         canvasView.drawing = drawing
         canvasView.delegate = context.coordinator
         canvasView.isOpaque = false
         canvasView.backgroundColor = .clear
+        
+        toolPicker.addObserver(canvasView)
+        toolPicker.setVisible(true, forFirstResponder: canvasView)
+        canvasView.becomeFirstResponder()
         
         DispatchQueue.main.async {
             lastValidDrawing = drawing
@@ -28,7 +32,7 @@ struct PencilKitRepresentable: UIViewRepresentable {
         
         let currentDrawing = uiView.drawing
         
-        uiView.tool = tool
+        uiView.tool = toolPicker.selectedTool
         
         if currentDrawing.strokes.isEmpty && !drawing.strokes.isEmpty {
             uiView.drawing = drawing

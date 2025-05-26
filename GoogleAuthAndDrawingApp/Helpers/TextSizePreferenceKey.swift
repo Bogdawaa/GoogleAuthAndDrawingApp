@@ -1,8 +1,8 @@
-//
-//  TextSizePreferenceKey.swift
-//  GoogleAuthAndDrawingApp
-//
-//  Created by Bogdan Fartdinov on 25.05.2025.
-//
+import SwiftUI
 
-import Foundation
+struct TextSizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
+}

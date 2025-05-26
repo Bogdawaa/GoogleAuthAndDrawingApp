@@ -7,20 +7,28 @@ class DrawingViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var image: UIImage?
     @Published var originalImage: UIImage?
+    
     @Published var offset: CGSize = .zero
     @Published var lastOffset: CGSize = .zero
     @Published var rotation: Angle = .zero
     @Published var accumulatedRotation: Double = 0
     @Published var scale: CGFloat = 1.0
     @Published var lastScale: CGFloat = 0.0
+    
     @Published var isShownImagePicker: Bool = false
-    @Published var isDrawingEnabled = false
+    @Published var isDrawingEnabled = true
+    
     @Published var drawing = PKDrawing()
+    @Published var toolPiker = PKToolPicker()
+    
     @Published var currentFilter: FilterService.FilterType = .none
     @Published var filteredImage: UIImage?
-    @Published var tool: PKTool = PKInkingTool(.pen, color: .black, width: 5)
-    @Published var selectedTool: ToolType = .pen
 
+    @Published var textElements: [TextElement] = []
+    @Published var currentText: String = ""
+    @Published var isAddingText = false
+    @Published var selectedTextColor: Color = .black
+    @Published var selectedFontSize: CGFloat = 24
     
     // MARK: - Computed Properties
     var safeAreaInsets: EdgeInsets {
@@ -75,18 +83,24 @@ extension DrawingViewModel {
     }
     
     func applyRotation(degrees: Double, containerSize: CGSize) {
+        let radians = Angle(degrees: degrees).radians
+        let center = CGPoint(x: containerSize.width/2, y: containerSize.height/2)
+        
         let newTotal = accumulatedRotation + degrees
         let newRotation = newTotal.truncatingRemainder(dividingBy: 360)
+        rotation = .degrees(newRotation)
+        accumulatedRotation = newTotal
         
-        if abs(degrees) < 360 {
-            withAnimation {
-                rotation = .degrees(newRotation)
-            }
-        } else {
-            rotation = .degrees(newRotation)
+        for index in textElements.indices {
+            let dx = textElements[index].position.x - center.x
+            let dy = textElements[index].position.y - center.y
+            
+            let newX = center.x + dx * cos(radians) - dy * sin(radians)
+            let newY = center.y + dx * sin(radians) + dy * cos(radians)
+            
+            textElements[index].position = CGPoint(x: newX, y: newY)
         }
         
-        accumulatedRotation = newTotal
         adjustScaleForRotation(containerSize: containerSize)
         clampOffset(for: containerSize)
     }
@@ -124,6 +138,19 @@ extension DrawingViewModel {
             scale = clampedScale
             offset = .zero
             lastOffset = .zero
+        }
+    }
+    
+    func applyScaleToAllElements(scale: CGFloat) {
+        let delta = scale / self.scale
+        self.scale = scale
+        
+        for index in textElements.indices {
+            textElements[index].scale *= delta
+            textElements[index].position = CGPoint(
+                x: textElements[index].position.x * delta,
+                y: textElements[index].position.y * delta
+            )
         }
     }
 }
@@ -203,47 +230,72 @@ extension DrawingViewModel {
     private func renderCombinedImage(baseImage: UIImage?) -> UIImage? {
         guard let baseImage = baseImage else { return nil }
         let size = containerSize(for: baseImage)
+        let center = CGPoint(x: size.width/2, y: size.height/2)
         
         let renderer = UIGraphicsImageRenderer(size: size)
         
         return renderer.image { ctx in
+            
             UIColor.white.setFill()
             ctx.fill(CGRect(origin: .zero, size: size))
             
-            let radians = rotation.radians
             ctx.cgContext.saveGState()
-            ctx.cgContext.translateBy(x: size.width/2, y: size.height/2)
-            ctx.cgContext.rotate(by: CGFloat(radians))
+            
+            ctx.cgContext.translateBy(x: center.x, y: center.y)
+            ctx.cgContext.rotate(by: CGFloat(rotation.radians))
             ctx.cgContext.scaleBy(x: scale, y: scale)
+            ctx.cgContext.translateBy(x: -center.x, y: -center.y)
+            ctx.cgContext.translateBy(x: offset.width, y: offset.height)
             
-            baseImage.draw(in: CGRect(
-                x: -size.width/2 + offset.width,
-                y: -size.height/2 + offset.height,
-                width: size.width,
-                height: size.height
-            ))
-            
-            ctx.cgContext.restoreGState()
+            baseImage.draw(in: CGRect(origin: .zero, size: size))
             
             let drawingImage = drawing.image(
                 from: CGRect(origin: .zero, size: size),
                 scale: UIScreen.main.scale
             )
-            
             drawingImage.draw(in: CGRect(origin: .zero, size: size))
+            
+            ctx.cgContext.restoreGState()
+            
+            for textElement in textElements {
+                ctx.cgContext.saveGState()
+                
+                let textPosition = CGPoint(
+                    x: (textElement.position.x - center.x) * scale + center.x + offset.width,
+                    y: (textElement.position.y - center.y) * scale + center.y + offset.height
+                )
+                
+                ctx.cgContext.translateBy(x: textPosition.x, y: textPosition.y)
+                ctx.cgContext.rotate(by: CGFloat((rotation + textElement.rotation).radians))
+                ctx.cgContext.scaleBy(x: textElement.scale, y: textElement.scale)
+                
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .center
+                
+                let attributes: [NSAttributedString.Key: Any] = [
+                    .font: UIFont.systemFont(ofSize: textElement.fontSize),
+                    .foregroundColor: UIColor(textElement.color),
+                    .paragraphStyle: paragraphStyle
+                ]
+                
+                let textSize = (textElement.text as NSString).size(withAttributes: attributes)
+                let textRect = CGRect(
+                    x: -textSize.width/2,
+                    y: -textSize.height/2,
+                    width: textSize.width,
+                    height: textSize.height
+                )
+                
+                (textElement.text as NSString).draw(in: textRect, withAttributes: attributes)
+                ctx.cgContext.restoreGState()
+            }
         }
     }
-    
 }
+
 
 // MARK: - Drawing
 extension DrawingViewModel {
-    
-    enum ToolType: String, CaseIterable {
-        case pen = "Pen"
-        case marker = "Marker"
-        case eraser = "Eraser"
-    }
     
     func reset() {
         drawing = PKDrawing()
@@ -252,22 +304,11 @@ extension DrawingViewModel {
         rotation = .zero
         offset = .zero
         lastOffset = .zero
+        textElements.removeAll()
     }
     
     func clearDrawing() {
         drawing = PKDrawing()
-    }
-    
-    func setTool(_ tool: ToolType) {
-        selectedTool = tool
-        switch tool {
-        case .pen:
-            self.tool = PKInkingTool(.pen, color: .black, width: 5)
-        case .marker:
-            self.tool = PKInkingTool(.marker, color: .red, width: 10)
-        case .eraser:
-            self.tool = PKEraserTool(.bitmap, width: 15)
-        }
     }
 }
 
@@ -278,5 +319,58 @@ extension DrawingViewModel {
         
         currentFilter = filterType
         filteredImage = FilterService.shared.applyFilter(filterType, to: originalImage)
+    }
+}
+
+// MARK: - Text Elements
+extension DrawingViewModel {
+    func addTextElement() {
+        guard let image = image else { return }
+        
+        let newElement = TextElement(
+            text: currentText,
+            position: CGPoint(x: containerSize(for: image).width/2, y: containerSize(for: image).height/2),
+            color: selectedTextColor,
+            fontSize: selectedFontSize
+        )
+        textElements.append(newElement)
+        currentText = ""
+        isAddingText = false
+    }
+    
+    func updateTextPosition(_ id: UUID, newPosition: CGPoint) {
+        if let index = textElements.firstIndex(where: { $0.id == id }) {
+            textElements[index].position = newPosition
+        }
+    }
+
+    func updateTextScale(_ id: UUID, newScale: CGFloat) {
+        if let index = textElements.firstIndex(where: { $0.id == id }) {
+            textElements[index].scale = newScale
+        }
+    }
+    
+    func updateTextRotation(_ id: UUID, newRotation: Angle) {
+        if let index = textElements.firstIndex(where: { $0.id == id }) {
+            textElements[index].rotation = newRotation
+        }
+    }
+    
+    func updateTextSize(_ id: UUID, size: CGSize) {
+        if let index = textElements.firstIndex(where: { $0.id == id }) {
+            textElements[index].size = size
+        }
+    }
+    
+    func selectTextElement(_ id: UUID) {
+        textElements.indices.forEach { index in
+            textElements[index].isSelected = (textElements[index].id == id)
+        }
+    }
+    
+    func deselectTextElements() {
+        textElements.indices.forEach { index in
+            textElements[index].isSelected = false
+        }
     }
 }

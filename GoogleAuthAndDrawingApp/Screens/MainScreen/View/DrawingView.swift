@@ -15,95 +15,35 @@ struct DrawingView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Top panel
+                // MARK: - Top panel
                 VStack(spacing: 0) {
                     
                     Color.clear
                         .frame(height: viewModel.safeAreaInsets.top)
                     
-                    makeTopToolView()
+                    topToolView
                         .padding()
                 }
                 .background(Color(.systemBackground))
                 .edgesIgnoringSafeArea(.top)
                 
                 Spacer()
-                
+               
                 ZStack {
                     Color.clear
                         .contentShape(Rectangle())
-                        .onTapGesture {}
-                    
-                    // Content
-                    if let image = viewModel.currentFilter == .none
-                        ? viewModel.image : viewModel.filteredImage {
-                        
-                        GeometryReader { geometry in
-                            let containerSize = viewModel.containerSize(for: image)
-                            
-                            ZStack {
-                                // Image layer
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: containerSize.width, height: containerSize.height)
-                                    .scaleEffect(viewModel.scale)
-                                    .rotationEffect(viewModel.rotation)
-                                    .offset(viewModel.offset)
-                                    .gesture(
-                                        DragGesture()
-                                            .onChanged { value in
-                                                viewModel.handleDragChange(value)
-                                            }
-                                            .onEnded({ _ in
-                                                viewModel.handleDragEnded(
-                                                    containerSize: viewModel.containerSize(for: viewModel.image)
-                                                )
-                                            })
-                                    )
-                                
-                                // Drawing layer
-                                PencilKitRepresentable(
-                                    drawing: $viewModel.drawing,
-                                    isDrawingEnabled: $viewModel.isDrawingEnabled,
-                                    tool: $viewModel.tool,
-                                )
-                                .frame(width: containerSize.width, height: containerSize.height)
-                                .scaleEffect(viewModel.scale)
-                                .rotationEffect(viewModel.rotation)
-                                .offset(viewModel.offset)
-                            }
-                            .frame(width: containerSize.width, height: containerSize.height)
-                            .background(Color.gray.opacity(0.1))
-                            .clipped()
-                            .contentShape(Rectangle())
-                            .gesture(
-                                MagnificationGesture()
-                                    .updating($isInteracting, body: { _, out, _ in
-                                        out = true
-                                    })
-                                    .onChanged { value in
-                                        viewModel.handleMagnificationChange(value)
-                                    }
-                                    .onEnded { _ in
-                                        viewModel.handleMagnificationEnded()
-                                    }
-                            )
+                        .onTapGesture {
+                            viewModel.deselectTextElements()
                         }
-                        .frame(width: viewModel.containerSize(for: image).width,
-                               height: viewModel.containerSize(for: image).height)
-                    } else {
-                        Spacer()
-                        Text("Выберите изображение")
-                            .font(.headline)
-                        Spacer()
-                    }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    DrawingContentView(viewModel: viewModel)
+                    
                 }
-                
                 
                 Spacer()
                 
-                // Bottom panels
+                // MARK: - Bottom panels
                 if let image = viewModel.image {
                     VStack(spacing: 0) {
                         rotationSlider
@@ -131,7 +71,6 @@ struct DrawingView: View {
                 Text(alertMessage)
             }
         }
-        
     }
 }
 
@@ -139,7 +78,7 @@ struct DrawingView: View {
 // MARK: - UI Extension
 extension DrawingView {
     // Верхняя панель инструментов
-    func makeTopToolView() -> some View {
+    private var topToolView: some View {
         HStack {
             
             Button(action: {
@@ -196,10 +135,8 @@ extension DrawingView {
             value: Binding(
                 get: { viewModel.rotation.degrees },
                 set: {
-                    viewModel.applyRotation(
-                        degrees: $0 - viewModel.rotation.degrees,
-                        containerSize: viewModel.containerSize(for: viewModel.image)
-                    )
+                    let delta = $0 - viewModel.rotation.degrees
+                    viewModel.applyRotation(degrees: delta, containerSize: viewModel.containerSize(for: viewModel.image))
                 }
             ),
             in: -45...45,
@@ -213,7 +150,7 @@ extension DrawingView {
     private var bottomToolView: some View {
         HStack {
             Spacer()
-            toolMenu
+            textPanel
             Spacer()
             filterMenu
             Spacer()
@@ -248,33 +185,16 @@ extension DrawingView {
         .padding()
     }
     
-    private var toolIconName: String {
-        switch viewModel.selectedTool {
-        case .pen: return "pencil"
-        case .marker: return "pencil.tip"
-        case .eraser: return "eraser.fill"
-        }
-    }
-    
-    private var toolMenu: some View {
-        Menu {
-            ForEach(DrawingViewModel.ToolType.allCases, id: \.self) { tool in
-                Button {
-                    viewModel.setTool(tool)
-                } label: {
-                    HStack {
-                        Text(tool.rawValue)
-                        Spacer()
-                        if viewModel.selectedTool == tool {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
+    // Панель добавления текста
+    private var textPanel: some View {
+        VStack {
+            
+            Button(action: {
+                viewModel.isAddingText = true
+            }) {
+                Image(systemName: "textformat")
+                    .font(.title)
             }
-        } label: {
-            Image(systemName: toolIconName)
-                .font(.title)
         }
     }
     
@@ -318,5 +238,14 @@ extension DrawingView {
         alertTitle = title
         alertMessage = message
         showAlert = true
+    }
+}
+
+
+extension String {
+    func widthOfString(usingFont font: UIFont) -> CGFloat {
+        let fontAttributes = [NSAttributedString.Key.font: font]
+        let size = self.size(withAttributes: fontAttributes)
+        return size.width
     }
 }
