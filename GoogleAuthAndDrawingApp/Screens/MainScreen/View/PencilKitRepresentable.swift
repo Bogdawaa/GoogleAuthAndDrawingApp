@@ -2,22 +2,23 @@ import PencilKit
 import SwiftUI
 
 struct PencilKitRepresentable: UIViewRepresentable {
+    @ObservedObject var viewModel: DrawingViewModel
+    
     @Binding var drawing: PKDrawing
     @Binding var isDrawingEnabled: Bool
-    @Binding var toolPicker: PKToolPicker
-
     @State private var lastValidDrawing: PKDrawing?
 
     func makeUIView(context: Context) -> PKCanvasView {
         let canvasView = PKCanvasView()
         canvasView.drawingPolicy = .anyInput
-        canvasView.tool = toolPicker.selectedTool
+        canvasView.tool = viewModel.toolPiker.selectedTool
         canvasView.drawing = drawing
         canvasView.delegate = context.coordinator
         canvasView.isOpaque = false
         canvasView.backgroundColor = .clear
         
-        updateToolPickerVisibility(for: canvasView)
+//        updateToolPickerVisibility(for: canvasView)
+        viewModel.setupToolPicker(for: canvasView)
 
         DispatchQueue.main.async {
             lastValidDrawing = drawing
@@ -27,12 +28,9 @@ struct PencilKitRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: PKCanvasView, context: Context) {
-        
-        updateToolPickerVisibility(for: uiView)
-
         let currentDrawing = uiView.drawing
         
-        uiView.tool = toolPicker.selectedTool
+        uiView.tool = viewModel.toolPiker.selectedTool
         
         if currentDrawing.strokes.isEmpty && !drawing.strokes.isEmpty {
             uiView.drawing = drawing
@@ -52,17 +50,6 @@ struct PencilKitRepresentable: UIViewRepresentable {
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
-    private func updateToolPickerVisibility(for canvasView: PKCanvasView) {
-            if isDrawingEnabled {
-                toolPicker.addObserver(canvasView)
-                toolPicker.setVisible(true, forFirstResponder: canvasView)
-                canvasView.becomeFirstResponder()
-            } else {
-                toolPicker.setVisible(false, forFirstResponder: canvasView)
-                toolPicker.removeObserver(canvasView)
-            }
-        }
 
     // MARK: - Coordinator
     class Coordinator: NSObject, PKCanvasViewDelegate {

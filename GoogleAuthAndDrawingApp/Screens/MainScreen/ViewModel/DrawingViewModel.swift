@@ -16,7 +16,9 @@ class DrawingViewModel: ObservableObject {
     @Published var lastScale: CGFloat = 0.0
     
     @Published var isShownImagePicker: Bool = false
-    @Published var isDrawingEnabled = true
+    @Published var showImageSourceSelection = false
+    @Published var sourceType: ImagePicker.SourceType = .library
+//    @Published var isDrawingEnabled = true
     
     @Published var drawing = PKDrawing()
     @Published var toolPiker = PKToolPicker()
@@ -29,6 +31,16 @@ class DrawingViewModel: ObservableObject {
     @Published var isAddingText = false
     @Published var selectedTextColor: Color = .black
     @Published var selectedFontSize: CGFloat = 24
+    
+    // MARK: - Computed properties
+    @Published var isDrawingEnabled = true {
+        didSet {
+            updateToolPickerVisibility()
+        }
+    }
+    
+    private var canvasView: PKCanvasView?
+
     
     // MARK: - Computed Properties
     var safeAreaInsets: EdgeInsets {
@@ -372,5 +384,28 @@ extension DrawingViewModel {
         textElements.indices.forEach { index in
             textElements[index].isSelected = false
         }
+    }
+}
+
+// MARK: - PencilKit setup
+extension DrawingViewModel {
+    
+    func setupToolPicker(for canvasView: PKCanvasView) {
+        self.canvasView = canvasView
+        updateToolPickerVisibility()
+    }
+    
+    func updateToolPickerVisibility() {
+        guard let canvasView = canvasView else { return }
+        
+        if isDrawingEnabled {
+            toolPiker.addObserver(canvasView)
+            toolPiker.setVisible(true, forFirstResponder: canvasView)
+            canvasView.becomeFirstResponder()
+        } else {
+            toolPiker.setVisible(false, forFirstResponder: canvasView)
+            toolPiker.removeObserver(canvasView)
+        }
+        canvasView.isUserInteractionEnabled = isDrawingEnabled
     }
 }

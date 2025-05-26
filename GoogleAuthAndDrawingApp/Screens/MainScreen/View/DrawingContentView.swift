@@ -35,9 +35,9 @@ struct DrawingContentView: View {
                     
                     // Drawing layer
                     PencilKitRepresentable(
+                        viewModel: viewModel,
                         drawing: $viewModel.drawing,
                         isDrawingEnabled: $viewModel.isDrawingEnabled,
-                        toolPicker: $viewModel.toolPiker
                     )
                     .frame(width: containerSize.width, height: containerSize.height)
                     .scaleEffect(viewModel.scale)
