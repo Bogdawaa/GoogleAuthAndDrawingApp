@@ -17,10 +17,8 @@ struct PencilKitRepresentable: UIViewRepresentable {
         canvasView.isOpaque = false
         canvasView.backgroundColor = .clear
         
-        toolPicker.addObserver(canvasView)
-        toolPicker.setVisible(true, forFirstResponder: canvasView)
-        canvasView.becomeFirstResponder()
-        
+        updateToolPickerVisibility(for: canvasView)
+
         DispatchQueue.main.async {
             lastValidDrawing = drawing
         }
@@ -30,6 +28,8 @@ struct PencilKitRepresentable: UIViewRepresentable {
 
     func updateUIView(_ uiView: PKCanvasView, context: Context) {
         
+        updateToolPickerVisibility(for: uiView)
+
         let currentDrawing = uiView.drawing
         
         uiView.tool = toolPicker.selectedTool
@@ -52,7 +52,19 @@ struct PencilKitRepresentable: UIViewRepresentable {
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
+    
+    private func updateToolPickerVisibility(for canvasView: PKCanvasView) {
+            if isDrawingEnabled {
+                toolPicker.addObserver(canvasView)
+                toolPicker.setVisible(true, forFirstResponder: canvasView)
+                canvasView.becomeFirstResponder()
+            } else {
+                toolPicker.setVisible(false, forFirstResponder: canvasView)
+                toolPicker.removeObserver(canvasView)
+            }
+        }
 
+    // MARK: - Coordinator
     class Coordinator: NSObject, PKCanvasViewDelegate {
         var parent: PencilKitRepresentable
 
