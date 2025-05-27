@@ -120,6 +120,7 @@ extension DrawingView {
 
             // Кнопка выбора фото
             Button(action: {
+                viewModel.isDrawingEnabled = false
                 viewModel.showImageSourceSelection.toggle()
             }) {
                 Image(systemName: "photo")
@@ -128,21 +129,25 @@ extension DrawingView {
 
             Spacer()
             
-            // Кнопка сохранения в галерею
-            Button(action: {
-                handleSave()
-            }) {
-                Image(systemName: "square.and.arrow.down")
-                    .font(.title)
-            }
-            
-            Spacer()
-            
-            // Кнопка поделиться
-            Button(action: {
-                shareImage()
-            }) {
-                Image(systemName: "arrowshape.turn.up.forward")
+            Menu {
+                // Кнопка сохранения в галерею
+                Button(action: {
+                    viewModel.isDrawingEnabled = false
+                    saveImage()
+                }) {
+                    Label("Сохранить", systemImage: "photo")
+                }
+                
+                // Кнопка поделиться
+                Button(action: {
+                    viewModel.isDrawingEnabled = false
+                    shareImage()
+                }) {
+                    Label("Поделиться", systemImage: "arrowshape.turn.up.forward")
+                        .font(.title)
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
                     .font(.title)
             }
         }
@@ -241,7 +246,18 @@ extension DrawingView {
 
 // MARK: - Alert Actions
 extension DrawingView {
-    private func handleSave() {
+    private func showAlert(title: String, message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
+    }
+}
+
+
+// MARK: - Image activities
+extension DrawingView {
+    
+    private func saveImage() {
         viewModel.saveImageToGallery { success, error in
             if success {
                 showAlert(title: "Готово!", message: "Изображение сохранено в галерею!")
@@ -253,16 +269,6 @@ extension DrawingView {
         }
     }
     
-    private func showAlert(title: String, message: String) {
-        alertTitle = title
-        alertMessage = message
-        showAlert = true
-    }
-}
-
-
-// Private Methods
-extension DrawingView {
     private func shareImage() {
         viewModel.shareImage { image in
             guard let image = image else {
