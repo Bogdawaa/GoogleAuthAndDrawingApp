@@ -1,6 +1,7 @@
 import SwiftUI
 import PencilKit
 import PhotosUI
+import Combine
 
 class DrawingViewModel: ObservableObject {
     
@@ -30,6 +31,12 @@ class DrawingViewModel: ObservableObject {
     @Published var isAddingText = false
     @Published var selectedTextColor: Color = .black
     @Published var selectedFontSize: CGFloat = 24
+    
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    
+    private var authService = FirebaseAuthServiceImpl()
+    private var cancellables: Set<AnyCancellable> = []
     
     // MARK: - Computed properties
     @Published var isDrawingEnabled = true {
@@ -415,5 +422,29 @@ extension DrawingViewModel {
         let imageToRender = currentFilter == .none ? image : filteredImage
         let renderedImage = renderCombinedImage(baseImage: imageToRender)
         completion(renderedImage)
+    }
+}
+
+// MARK: - MainViewModel Extension
+extension DrawingViewModel {
+    func singOut() {
+        isLoading = true
+        
+        authService
+            .signOut()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                switch completion {
+                    case .failure(let error):
+                    self?.isLoading = false
+                    self?.errorMessage = error.localizedDescription
+                    print("*** Error in \(#function): \(error)")
+                case .finished:
+                    self?.isLoading = false
+                }
+            } receiveValue: { [weak self] result in
+                self?.errorMessage = nil
+            }
+            .store(in: &cancellables)
     }
 }

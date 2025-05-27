@@ -146,6 +146,12 @@ extension DrawingView {
                     Label("Поделиться", systemImage: "arrowshape.turn.up.forward")
                         .font(.title)
                 }
+                
+                // Кнопка выход
+                Button(action: { viewModel.singOut() }) {
+                    Label("Выйти", systemImage: "rectangle.portrait.and.arrow.right")
+                        .font(.title)
+                }
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .font(.title)
