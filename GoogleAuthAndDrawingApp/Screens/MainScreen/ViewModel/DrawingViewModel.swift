@@ -409,3 +409,12 @@ extension DrawingViewModel {
         canvasView.isUserInteractionEnabled = isDrawingEnabled
     }
 }
+
+// MARK: - Sharing
+extension DrawingViewModel {
+    func shareImage(completion: @escaping (UIImage?) -> Void) {
+        let imageToRender = currentFilter == .none ? image : filteredImage
+        let renderedImage = renderCombinedImage(baseImage: imageToRender)
+        completion(renderedImage)
+    }
+}

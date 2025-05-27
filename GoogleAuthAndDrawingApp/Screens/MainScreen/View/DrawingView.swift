@@ -85,7 +85,7 @@ extension DrawingView {
     // Верхняя панель инструментов
     private var topToolView: some View {
         HStack {
-            
+            // Кнопка очистки контента
             Button(action: {
                 
                 viewModel.clearDrawing()
@@ -96,6 +96,7 @@ extension DrawingView {
             
             Spacer()
             
+            // Кнопка режима рисования
             Button(action: {
                 viewModel.isDrawingEnabled = true
             }) {
@@ -106,6 +107,7 @@ extension DrawingView {
             
             Spacer()
             
+            // Кнопка режима перемещения
             Button(action: {
                 viewModel.isDrawingEnabled = false
             }) {
@@ -116,6 +118,7 @@ extension DrawingView {
             
             Spacer()
 
+            // Кнопка выбора фото
             Button(action: {
                 viewModel.showImageSourceSelection.toggle()
             }) {
@@ -125,10 +128,21 @@ extension DrawingView {
 
             Spacer()
             
+            // Кнопка сохранения в галерею
             Button(action: {
                 handleSave()
             }) {
                 Image(systemName: "square.and.arrow.down")
+                    .font(.title)
+            }
+            
+            Spacer()
+            
+            // Кнопка поделиться
+            Button(action: {
+                shareImage()
+            }) {
+                Image(systemName: "arrowshape.turn.up.forward")
                     .font(.title)
             }
         }
@@ -246,3 +260,26 @@ extension DrawingView {
     }
 }
 
+
+// Private Methods
+extension DrawingView {
+    private func shareImage() {
+        viewModel.shareImage { image in
+            guard let image = image else {
+                showAlert(title: "Ошибка", message: "Ошибка при попытке поделиться изображением")
+                return
+            }
+            
+            let activityVC = UIActivityViewController(
+                activityItems: [image],
+                applicationActivities: nil
+            )
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let rootViewController = windowScene.windows.first?.rootViewController {
+                activityVC.popoverPresentationController?.sourceView = rootViewController.view
+                rootViewController.present(activityVC, animated: true)
+            }
+        }
+    }
+}
