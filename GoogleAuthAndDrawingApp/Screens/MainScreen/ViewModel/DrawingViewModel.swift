@@ -18,7 +18,6 @@ class DrawingViewModel: ObservableObject {
     @Published var isShownImagePicker: Bool = false
     @Published var showImageSourceSelection = false
     @Published var sourceType: ImagePicker.SourceType = .library
-//    @Published var isDrawingEnabled = true
     
     @Published var drawing = PKDrawing()
     @Published var toolPiker = PKToolPicker()
