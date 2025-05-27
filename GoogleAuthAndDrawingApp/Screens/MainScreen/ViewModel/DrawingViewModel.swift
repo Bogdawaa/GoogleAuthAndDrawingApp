@@ -18,7 +18,6 @@ class DrawingViewModel: ObservableObject {
     @Published var isShownImagePicker: Bool = false
     @Published var showImageSourceSelection = false
     @Published var sourceType: ImagePicker.SourceType = .library
-//    @Published var isDrawingEnabled = true
     
     @Published var drawing = PKDrawing()
     @Published var toolPiker = PKToolPicker()
@@ -407,5 +406,14 @@ extension DrawingViewModel {
             toolPiker.removeObserver(canvasView)
         }
         canvasView.isUserInteractionEnabled = isDrawingEnabled
+    }
+}
+
+// MARK: - Sharing
+extension DrawingViewModel {
+    func shareImage(completion: @escaping (UIImage?) -> Void) {
+        let imageToRender = currentFilter == .none ? image : filteredImage
+        let renderedImage = renderCombinedImage(baseImage: imageToRender)
+        completion(renderedImage)
     }
 }
